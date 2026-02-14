@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cozy Cafe</title>
+    <style>
+      :root {
+        /* Dark theme (default) */
+        --bg-primary: #1d2021;
+        --bg-secondary: rgba(40, 40, 40, 0.85);
+        --bg-tertiary: #282828;
+        --border-color: #504945;
+        --border-light: #3c3836;
+        --text-primary: #ebdbb2;
+        --text-secondary: #d5c4a1;
+        --text-muted: #bdae93;
+        --accent-orange: #fe8019;
+        --accent-yellow: #fabd2f;
+        --accent-green: #b8bb26;
+        --accent-red: #fb4934;
+        --accent-aqua: #8ec07c;
+      }
+
+      body.light-theme {
+        /* Light cream theme */
+        --bg-primary: #fbf1c7;
+        --bg-secondary: rgba(251, 241, 199, 0.9);
+        --bg-tertiary: #ebdbb2;
+        --border-color: #d5c4a1;
+        --border-light: #bdae93;
+        --text-primary: #3c3836;
+        --text-secondary: #504945;
+        --text-muted: #665c54;
+        --accent-orange: #d65d0e;
+        --accent-yellow: #d79921;
+        --accent-green: #98971a;
+        --accent-red: #cc241d;
+        --accent-aqua: #689d6a;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Georgia", serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* Background Image */
+      .cafe-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("bg-cafe.png");
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.7);
+        z-index: 0;
+        transition: filter 0.3s ease;
+      }
+
+      body.light-theme .cafe-bg {
+        filter: brightness(1);
+      }
+
+      /* Main Container */
+      .container {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        gap: 2rem;
+      }
+
+      /* Header */
+      header {
+        text-align: center;
+        position: relative;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        color: var(--text-primary);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      h1 img {
+        height: 80px;
+        width: auto;
+        content: url("coffee.jpg");
+      }
+
+      /* Use dark version in dark mode */
+      body:not(.light-theme) h1 img {
+        content: url("coffee-dark.png");
+      }
+
+      .subtitle {
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0.5rem 1rem;
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s;
+        backdrop-filter: blur(10px);
+      }
+
+      .theme-toggle:hover {
+        background: var(--accent-orange);
+        color: var(--bg-primary);
+      }
+
+      /* Content Grid */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        flex: 1;
+      }
+
+      /* Timer Section */
+      .timer-section {
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .timer-display {
+        font-size: clamp(3rem, 8vw, 4rem);
+        color: var(--accent-orange);
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        font-family: monospace;
+      }
+
+      .timer-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .timer-btn {
+        padding: 0.75rem 2rem;
+        background: var(--accent-orange);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 1;
+        min-width: 100px;
+      }
+
+      .timer-btn:hover {
+        background: var(--accent-yellow);
+        transform: translateY(-2px);
+      }
+
+      .timer-btn.secondary {
+        background: var(--border-color);
+        color: var(--text-primary);
+      }
+
+      .timer-btn.secondary:hover {
+        background: var(--border-light);
+      }
+
+      .timer-mode {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+
+      .mode-btn {
+        padding: 0.75rem;
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+      }
+
+      .mode-btn:hover {
+        border-color: var(--accent-orange);
+      }
+
+      .mode-btn.active {
+        background: var(--accent-green);
+        color: var(--bg-primary);
+        border-color: var(--accent-green);
+      }
+
+      /* Todo List */
+      .todo-section {
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .todo-section h2 {
+        color: var(--accent-orange);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .todo-input-group {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .todo-input {
+        flex: 1;
+        padding: 0.75rem;
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 1rem;
+      }
+
+      .todo-input:focus {
+        outline: none;
+        border-color: var(--accent-orange);
+      }
+
+      .add-todo-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--accent-green);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+
+      .add-todo-btn:hover {
+        background: var(--accent-aqua);
+      }
+
+      .todo-list {
+        list-style: none;
+        overflow-y: auto;
+        max-height: 300px;
+        padding-right: 0.5rem;
+      }
+
+      .todo-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .todo-list::-webkit-scrollbar-track {
+        background: var(--bg-tertiary);
+        border-radius: 3px;
+      }
+
+      .todo-list::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+      }
+
+      .todo-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-light);
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+      }
+
+      .todo-item:hover {
+        background: var(--border-light);
+      }
+
+      .todo-item.completed {
+        opacity: 0.6;
+      }
+
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: var(--text-muted);
+      }
+
+      .todo-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--accent-green);
+      }
+
+      .todo-text {
+        flex: 1;
+        color: var(--text-primary);
+        word-break: break-word;
+      }
+
+      .delete-todo {
+        padding: 0.4rem 0.75rem;
+        background: var(--accent-red);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .delete-todo:hover {
+        opacity: 0.8;
+      }
+
+      /* Audio Controls */
+      .audio-section {
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        grid-column: 1 / -1;
+      }
+
+      .audio-section h2 {
+        color: var(--accent-orange);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .audio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .audio-control {
+        background: var(--bg-tertiary);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .audio-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .audio-label span {
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .audio-btn {
+        padding: 0.5rem 1rem;
+        background: var(--accent-aqua);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .audio-btn:hover {
+        background: var(--accent-green);
+      }
+
+      .audio-btn.playing {
+        background: var(--accent-red);
+      }
+
+      .music-controls {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+
+      .music-track-btn {
+        flex: 1;
+        padding: 0.5rem;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 2px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .music-track-btn:hover {
+        border-color: var(--accent-orange);
+      }
+
+      .music-track-btn.active {
+        background: var(--accent-orange);
+        color: var(--bg-primary);
+        border-color: var(--accent-orange);
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 6px;
+        background: var(--border-light);
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: var(--accent-orange);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: var(--accent-orange);
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+      }
+
+      .volume-value {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        text-align: center;
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .audio-section {
+          grid-column: 1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .theme-toggle {
+          position: static;
+          margin: 1rem auto 0;
+          display: block;
+        }
+
+        header {
+          margin-bottom: 1rem;
+        }
+
+        .timer-mode {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .audio-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cafe-bg"></div>
+
+    <div class="container">
+      <header>
+        <h1><img src="coffee.jpg" alt="☕" /> Diya's Little Cafe</h1>
+        <p class="subtitle">For your ADHD</p>
+        <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
+      </header>
+
+      <div class="content-grid">
+        <div class="timer-section">
+          <div class="timer-display" id="timer">25:00</div>
+          <div class="timer-controls">
+            <button class="timer-btn" id="startBtn">Start</button>
+            <button class="timer-btn secondary" id="resetBtn">Reset</button>
+          </div>
+          <div class="timer-mode">
+            <button class="mode-btn active" data-work="25" data-break="5">
+              25 / 5
+            </button>
+            <button class="mode-btn" data-work="50" data-break="10">
+              50 / 10
+            </button>
+            <button class="mode-btn" data-work="20" data-break="5">
+              20 / 5
+            </button>
+            <button class="mode-btn" data-work="40" data-break="8">
+              40 / 8
+            </button>
+          </div>
+        </div>
+
+        <div class="todo-section">
+          <h2>📝 Tasks</h2>
+          <div class="todo-input-group">
+            <input
+              type="text"
+              class="todo-input"
+              id="todoInput"
+              placeholder="Add a task..."
+            />
+            <button class="add-todo-btn" id="addTodoBtn">Add</button>
+          </div>
+          <ul class="todo-list" id="todoList"></ul>
+        </div>
+      </div>
+
+      <div class="audio-section">
+        <h2>🎵 Ambiance</h2>
+        <div class="audio-grid">
+          <div class="audio-control">
+            <div class="audio-label">
+              <span>☕ Cafe</span>
+              <button class="audio-btn" id="cafeBtn">Play</button>
+            </div>
+            <input type="range" id="cafeVolume" min="0" max="100" value="70" />
+            <div class="volume-value">
+              <span id="cafeVolumeValue">70</span>%
+            </div>
+          </div>
+
+          <div class="audio-control">
+            <div class="audio-label">
+              <span>🌧️ Rain</span>
+              <button class="audio-btn" id="rainBtn">Play</button>
+            </div>
+            <input type="range" id="rainVolume" min="0" max="100" value="50" />
+            <div class="volume-value">
+              <span id="rainVolumeValue">50</span>%
+            </div>
+          </div>
+
+          <div class="audio-control">
+            <div class="audio-label">
+              <span>🎵 Music</span>
+              <button class="audio-btn" id="musicBtn">Play</button>
+            </div>
+            <div class="music-controls">
+              <button class="music-track-btn active" data-track="1">1</button>
+              <button class="music-track-btn" data-track="2">2</button>
+              <button class="music-track-btn" data-track="3">3</button>
+            </div>
+            <input type="range" id="musicVolume" min="0" max="100" value="40" />
+            <div class="volume-value">
+              <span id="musicVolumeValue">40</span>%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Theme Toggle
+      const themeToggle = document.getElementById("themeToggle");
+      const body = document.body;
+
+      // Load saved theme
+      const savedTheme = localStorage.getItem("cafeTheme") || "dark";
+      if (savedTheme === "light") {
+        body.classList.add("light-theme");
+        themeToggle.textContent = "☀️ Light";
+      }
+
+      themeToggle.addEventListener("click", () => {
+        body.classList.toggle("light-theme");
+        const isLight = body.classList.contains("light-theme");
+        themeToggle.textContent = isLight ? "☀️ Light" : "🌙 Dark";
+        localStorage.setItem("cafeTheme", isLight ? "light" : "dark");
+      });
+
+      // Audio setup - 3 music tracks
+      const cafeAudio = new Audio("sounds/cafe-ambiance.mp3");
+      const rainAudio = new Audio("sounds/rain.mp3");
+      const musicTracks = [
+        new Audio("sounds/lofi-1.mp3"),
+        new Audio("sounds/lofi-2.mp3"),
+        new Audio("sounds/lofi-3.mp3"),
+      ];
+      let currentTrack = 0;
+
+      // Loop all audio
+      cafeAudio.loop = true;
+      rainAudio.loop = true;
+      musicTracks.forEach((track) => (track.loop = true));
+
+      // Audio controls
+      const audios = {
+        cafe: {
+          audio: cafeAudio,
+          btn: document.getElementById("cafeBtn"),
+          volume: document.getElementById("cafeVolume"),
+          display: document.getElementById("cafeVolumeValue"),
+        },
+        rain: {
+          audio: rainAudio,
+          btn: document.getElementById("rainBtn"),
+          volume: document.getElementById("rainVolume"),
+          display: document.getElementById("rainVolumeValue"),
+        },
+        music: {
+          audio: musicTracks[currentTrack],
+          btn: document.getElementById("musicBtn"),
+          volume: document.getElementById("musicVolume"),
+          display: document.getElementById("musicVolumeValue"),
+        },
+      };
+
+      // Set initial volumes
+      Object.values(audios).forEach((item) => {
+        item.audio.volume = item.volume.value / 100;
+      });
+
+      // Play/Pause buttons
+      Object.entries(audios).forEach(([key, item]) => {
+        item.btn.addEventListener("click", () => {
+          if (item.audio.paused) {
+            item.audio.play();
+            item.btn.textContent = "Pause";
+            item.btn.classList.add("playing");
+          } else {
+            item.audio.pause();
+            item.btn.textContent = "Play";
+            item.btn.classList.remove("playing");
+          }
+        });
+
+        // Volume control
+        item.volume.addEventListener("input", (e) => {
+          const value = e.target.value;
+          item.audio.volume = value / 100;
+          item.display.textContent = value;
+        });
+      });
+
+      // Music track switching
+      const trackBtns = document.querySelectorAll(".music-track-btn");
+      trackBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const trackNum = parseInt(btn.dataset.track) - 1;
+          const wasPlaying = !audios.music.audio.paused;
+
+          // Pause current track
+          audios.music.audio.pause();
+          audios.music.audio.currentTime = 0;
+
+          // Switch track
+          currentTrack = trackNum;
+          audios.music.audio = musicTracks[currentTrack];
+          audios.music.audio.volume = audios.music.volume.value / 100;
+          audios.music.audio.loop = true;
+
+          // Update button states
+          trackBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          // Resume if was playing
+          if (wasPlaying) {
+            audios.music.audio.play();
+            audios.music.btn.textContent = "Pause";
+            audios.music.btn.classList.add("playing");
+          }
+        });
+      });
+
+      // Pomodoro Timer
+      let timeLeft = 25 * 60;
+      let timerInterval = null;
+      let isRunning = false;
+      let isWorkMode = true;
+      let currentWorkMinutes = 25;
+      let currentBreakMinutes = 5;
+
+      const timerDisplay = document.getElementById("timer");
+      const startBtn = document.getElementById("startBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const modeBtns = document.querySelectorAll(".mode-btn");
+
+      function updateDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function startTimer() {
+        if (!isRunning) {
+          isRunning = true;
+          startBtn.textContent = "Pause";
+          timerInterval = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+
+            if (timeLeft <= 0) {
+              clearInterval(timerInterval);
+              isRunning = false;
+              startBtn.textContent = "Start";
+
+              if (isWorkMode) {
+                alert("Work session complete! Time for a break 😊");
+                isWorkMode = false;
+                timeLeft = currentBreakMinutes * 60;
+              } else {
+                alert("Break over! Ready to focus? 💪");
+                isWorkMode = true;
+                timeLeft = currentWorkMinutes * 60;
+              }
+              updateDisplay();
+            }
+          }, 1000);
+        } else {
+          isRunning = false;
+          startBtn.textContent = "Start";
+          clearInterval(timerInterval);
+        }
+      }
+
+      function resetTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        startBtn.textContent = "Start";
+        isWorkMode = true;
+        timeLeft = currentWorkMinutes * 60;
+        updateDisplay();
+      }
+
+      startBtn.addEventListener("click", startTimer);
+      resetBtn.addEventListener("click", resetTimer);
+
+      modeBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          modeBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentWorkMinutes = parseInt(btn.dataset.work);
+          currentBreakMinutes = parseInt(btn.dataset.break);
+          resetTimer();
+        });
+      });
+
+      // Todo List
+      const todoInput = document.getElementById("todoInput");
+      const addTodoBtn = document.getElementById("addTodoBtn");
+      const todoList = document.getElementById("todoList");
+      let todos = JSON.parse(localStorage.getItem("cafeTodos")) || [];
+
+      function saveTodos() {
+        localStorage.setItem("cafeTodos", JSON.stringify(todos));
+      }
+
+      function renderTodos() {
+        todoList.innerHTML = "";
+        todos.forEach((todo, index) => {
+          const li = document.createElement("li");
+          li.className = `todo-item ${todo.completed ? "completed" : ""}`;
+
+          li.innerHTML = `
+                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? "checked" : ""} onchange="toggleTodo(${index})">
+                    <span class="todo-text">${todo.text}</span>
+                    <button class="delete-todo" onclick="deleteTodo(${index})">Delete</button>
+                `;
+
+          todoList.appendChild(li);
+        });
+      }
+
+      function addTodo() {
+        const text = todoInput.value.trim();
+        if (text) {
+          todos.push({ text, completed: false });
+          todoInput.value = "";
+          saveTodos();
+          renderTodos();
+        }
+      }
+
+      function toggleTodo(index) {
+        todos[index].completed = !todos[index].completed;
+        saveTodos();
+        renderTodos();
+      }
+
+      function deleteTodo(index) {
+        todos.splice(index, 1);
+        saveTodos();
+        renderTodos();
+      }
+
+      window.toggleTodo = toggleTodo;
+      window.deleteTodo = deleteTodo;
+
+      addTodoBtn.addEventListener("click", addTodo);
+      todoInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addTodo();
+      });
+
+      renderTodos();
+    </script>
+  </body>
+</html>
